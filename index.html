@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es-CO"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Resistencias eléctricas: guía interactiva</title>
+<style>
+:root{--bg:#fff;--sub:#f6f6f7;--tx:#16171a;--tx2:#5b5f66;--bd:#e3e4e7;--ac:#2563eb}
+@media (prefers-color-scheme:dark){:root{--bg:#121316;--sub:#1b1d21;--tx:#eceef1;--tx2:#a1a6ae;--bd:#2c2f35;--ac:#60a5fa}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{max-width:700px;margin:0 auto;padding:40px 20px 80px}h1{font-size:30px;line-height:1.2;margin:0 0 8px}.sum{color:var(--tx2);margin:0 0 24px}
+h2{font-size:21px;margin:44px 0 14px;scroll-margin-top:16px}nav{border:1px solid var(--bd);border-radius:12px;padding:14px 18px}nav a{display:block;color:var(--tx2);text-decoration:none;padding:3px 0}nav a:hover{color:var(--ac)}
+.seg{display:flex;flex-wrap:wrap;gap:4px;background:var(--sub);padding:4px;border-radius:10px;width:fit-content;max-width:100%;margin:8px 0}
+.seg button{border:0;background:transparent;color:var(--tx2);padding:6px 12px;border-radius:7px;cursor:pointer;font:inherit;font-size:14px}.seg button.on{background:var(--bg);color:var(--tx);box-shadow:0 0 0 1px var(--bd)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}@media(max-width:560px){.grid{grid-template-columns:1fr}}
+label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--tx2)}select,input{font:inherit;font-size:15px;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;width:100%}
+.btn{font:inherit;font-size:14px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:8px;padding:8px 14px;cursor:pointer;align-self:end}.btn.pri{background:var(--ac);color:#fff;border-color:var(--ac)}.btn:disabled{opacity:.4;cursor:default}
+.props{border-top:1px solid var(--bd);margin:12px 0}.props div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--bd)}.props span:first-child{color:var(--tx2)}.props span:last-child{text-align:right;font-weight:500}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:8px 6px;border-bottom:1px solid var(--bd);text-align:right}th:first-child,td:first-child{text-align:left}th{color:var(--tx2);font-weight:500}.tw{overflow-x:auto}
+.sw{display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid var(--tx2);vertical-align:-2px;margin-right:8px}
+.eq{text-align:center;font-size:18px;padding:10px;font-family:Cambria,Georgia,serif}.warn{background:#fef3c7;color:#78350f;border-radius:10px;padding:10px 14px;margin:12px 0}@media (prefers-color-scheme:dark){.warn{background:#3b2f0b;color:#fde68a}}
+svg{width:100%;height:auto;display:block;margin:8px 0}ul{padding-left:20px}
+</style></head><body><main>
+<h1>Resistencias eléctricas: guía interactiva</h1>
+<p class="sum">Lee el código de colores, conviértelo al revés, aplica la ley de Ohm y combina resistencias en serie y en paralelo.</p>
+<nav><a href="#que">¿Qué es una resistencia?</a><a href="#calc">Calculadora de código de colores</a><a href="#inv">De valor a colores</a><a href="#tabla">Tabla de colores</a><a href="#ohm">Ley de Ohm y potencia</a><a href="#sp">Serie y paralelo</a></nav>
+
+<h2 id="que">¿Qué es una resistencia?</h2>
+<p>Una resistencia es un componente que se opone al paso de la corriente eléctrica. Se usa para limitar corriente, dividir voltajes o polarizar transistores, y convierte en calor la energía que disipa.</p>
+<ul><li>Unidad: el ohmio (Ω). 1 kΩ = 1.000 Ω y 1 MΩ = 1.000.000 Ω.</li><li>Tolerancia: cuánto puede variar el valor real respecto al nominal (por ejemplo ±5 %).</li><li>Potencia nominal: lo máximo que puede disipar sin dañarse; las comunes son 1/8, 1/4, 1/2, 1 y 2 W.</li><li>Regla práctica: elige una potencia nominal de al menos el doble de la que va a disipar.</li><li>Coeficiente de temperatura (ppm/K): cuánto cambia el valor por cada grado de temperatura.</li></ul>
+
+<h2 id="calc">Calculadora de código de colores</h2>
+<div class="seg" id="modeSeg"></div><div id="res1"></div><div class="grid" id="sels"></div><div class="props" id="props1"></div>
+<p>Lee la resistencia con la banda de tolerancia (la más separada, normalmente dorada o plateada) a la derecha.</p>
+
+<h2 id="inv">De valor a colores</h2>
+<div class="grid"><label>Valor (ej.: 330, 4.7k, 2M2, 10M)<input id="invIn" value="4.7k"></label><div class="seg" id="invSeg" style="align-self:end"></div></div>
+<div id="invOut"></div>
+
+<h2 id="tabla">Tabla de colores</h2>
+<div class="tw"><table><thead><tr><th>Color</th><th>Dígito</th><th>Multiplicador</th><th>Tolerancia</th><th>Coef. temp.</th></tr></thead><tbody id="tb"></tbody></table></div>
+
+<h2 id="ohm">Ley de Ohm y potencia</h2>
+<div class="eq">V = I · R</div><div class="eq">P = V · I = I² · R = V² / R</div>
+<p>Elige las dos magnitudes que conoces e ingresa sus valores en unidades base.</p>
+<div class="seg" id="pairSeg"></div>
+<div class="grid"><label><span id="la"></span><input id="ia" type="number" value="12"></label><label><span id="lb"></span><input id="ib" type="number" value="220"></label></div>
+<div id="ohmOut"></div>
+
+<h2 id="sp">Serie y paralelo</h2>
+<div class="eq">Serie: R<sub>eq</sub> = R₁ + R₂ + … + Rₙ</div><div class="eq">Paralelo: R<sub>eq</sub> = 1 / (1/R₁ + 1/R₂ + … + 1/Rₙ)</div>
+<div id="list"></div><button class="btn pri" id="add">Añadir resistencia</button><div class="props" id="spOut"></div>
+<p>En paralelo el resultado siempre es menor que la resistencia más pequeña; en serie, mayor que cualquiera de ellas por separado.</p>
+</main>
+<script>
+const C=[["negro","Negro","#111111",0,0,null,250],["marron","Marrón","#7b4a12",1,1,1,100],["rojo","Rojo","#d32f2f",2,2,2,50],["naranja","Naranja","#f57c00",3,3,.05,15],["amarillo","Amarillo","#fbc02d",4,4,.02,25],["verde","Verde","#388e3c",5,5,.5,20],["azul","Azul","#1976d2",6,6,.25,10],["violeta","Violeta","#7b1fa2",7,7,.1,5],["gris","Gris","#9e9e9e",8,8,.01,1],["blanco","Blanco","#f5f5f5",9,9,null,null],["dorado","Dorado","#c9a227",null,-1,5,null],["plata","Plata","#bdbdbd",null,-2,10,null]].map(a=>({id:a[0],name:a[1],hex:a[2],digit:a[3],mult:a[4],tol:a[5],tc:a[6]}));
+const by=id=>C.find(c=>c.id===id),$=id=>document.getElementById(id);
+const num=x=>parseFloat(x.toPrecision(4)).toLocaleString("es-CO",{maximumFractionDigits:4});
+function fmt(o){if(!isFinite(o))return"—";const a=Math.abs(o);if(a>=1e9)return num(o/1e9)+" GΩ";if(a>=1e6)return num(o/1e6)+" MΩ";if(a>=1e3)return num(o/1e3)+" kΩ";return num(o)+" Ω"}
+const ml=m=>m>=0?"×"+fmt(10**m).replace(" Ω",""):m===-1?"×0,1":"×0,01";
+const pc=t=>"±"+String(t).replace(".",",")+" %";
+function si(v,u){if(!isFinite(v))return"—";const a=Math.abs(v);if(a===0)return"0 "+u;for(const[f,s]of[[1e9,"G"],[1e6,"M"],[1e3,"k"],[1,""],[1e-3,"m"],[1e-6,"µ"]])if(a>=f)return num(v/f)+" "+s+u;return num(v/1e-9)+" n"+u}
+function parseVal(s){const t=s.trim().replace(",",".").replace(/Ω|ohm(ios)?|ohms?/gi,"").trim();const m=t.match(/^([0-9]*\.?[0-9]+)\s*([kKmMgGrR]?)\s*([0-9]*)$/);if(!m)return NaN;let b=parseFloat(m[3]?m[1]+"."+m[3]:m[1]);const s2=m[2];return b*(s2==="k"||s2==="K"?1e3:s2==="M"?1e6:s2==="m"?1e-3:/g/i.test(s2)?1e9:1)}
+function svg(bands){const n=bands.length,gap=n>=5?38:46,xs=[];for(let i=0;i<n-1;i++)xs.push(215+i*gap);xs.push(470);
+return `<svg viewBox="0 0 700 170" role="img" aria-label="Resistencia"><line x1="20" y1="85" x2="680" y2="85" stroke="#9aa0a6" stroke-width="6" stroke-linecap="round"/><path d="M150 45 Q150 30 175 30 L230 30 Q245 30 255 42 L445 42 Q455 30 470 30 L525 30 Q550 30 550 45 L550 125 Q550 140 525 140 L470 140 Q455 140 445 128 L255 128 Q245 140 230 140 L175 140 Q150 140 150 125 Z" fill="#e3c99a" stroke="#8a7a5c" stroke-width="1.5"/>`+bands.map((b,i)=>{const t=xs[i]<240||xs[i]>450;return `<rect x="${xs[i]-9}" y="${t?30:42}" width="18" height="${t?110:86}" fill="${by(b).hex}" stroke="#0003" stroke-width=".5"/><text x="${xs[i]}" y="162" text-anchor="middle" font-size="12" fill="currentColor" opacity=".6">${i+1}</text>`}).join("")+"</svg>"}
+const props=items=>items.map(([k,v])=>`<div><span>${k}</span><span>${v}</span></div>`).join("");
+function seg(el,opts,val,cb){el.innerHTML=opts.map(([v,l])=>`<button data-v="${v}" class="${v===val?"on":""}">${l}</button>`).join("");el.onclick=e=>{const b=e.target.closest("button");if(!b)return;el.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));cb(b.dataset.v)}}
+const opt=(list,lab,sel)=>list.map(c=>`<option value="${c.id}"${c.id===sel?" selected":""}>${c.name} (${lab(c)})</option>`).join("");
+// calc
+const S={mode:"4",d:["amarillo","violeta","negro"],mul:"rojo",tol:"dorado",tc:"marron"};
+function drawSels(){const nd=S.mode==="4"?2:3;let h="";for(let i=0;i<nd;i++)h+=`<label>Banda ${i+1}: dígito<select data-k="d${i}">${opt(C.filter(c=>c.digit!==null&&!(i===0&&c.digit===0)),c=>c.digit,S.d[i])}</select></label>`;
+h+=`<label>Banda ${nd+1}: multiplicador<select data-k="mul">${opt(C.filter(c=>c.mult!==null),c=>ml(c.mult),S.mul)}</select></label><label>Banda ${nd+2}: tolerancia<select data-k="tol">${opt(C.filter(c=>c.tol!==null),c=>pc(c.tol),S.tol)}</select></label>`;
+if(S.mode==="6")h+=`<label>Banda 6: coef. de temperatura<select data-k="tc">${opt(C.filter(c=>c.tc!==null),c=>c.tc+" ppm/K",S.tc)}</select></label>`;$("sels").innerHTML=h;calc()}
+$("sels").onchange=e=>{const k=e.target.dataset.k;if(k[0]==="d"&&k.length===2)S.d[+k[1]]=e.target.value;else S[k]=e.target.value;calc()};
+function calc(){const nd=S.mode==="4"?2:3,dg=S.d.slice(0,nd),bands=[...dg,S.mul,S.tol,...(S.mode==="6"?[S.tc]:[])];const v=dg.reduce((a,id)=>a*10+by(id).digit,0)*10**by(S.mul).mult,t=by(S.tol).tol;
+$("res1").innerHTML=svg(bands);const it=[["Valor nominal",fmt(v)],["Tolerancia",pc(t)],["Mínimo",fmt(v*(1-t/100))],["Máximo",fmt(v*(1+t/100))]];if(S.mode==="6")it.push(["Coef. de temperatura",by(S.tc).tc+" ppm/K"]);$("props1").innerHTML=props(it);window.__last=v}
+seg($("modeSeg"),[["4","4 bandas"],["5","5 bandas"],["6","6 bandas"]],"4",v=>{S.mode=v;drawSels()});drawSels();
+// inverse
+let invN="4";function inv(){const v=parseVal($("invIn").value),n=invN==="4"?2:3;let out=null;if(isFinite(v)&&v>0){let e=Math.floor(Math.log10(v)+1e-12)-(n-1),m=Math.round(v/10**e);if(m>=10**n){m/=10;e++}if(e>=-2&&e<=9){const ds=String(m).padStart(n,"0").split("").map(x=>C[+x].id),real=m*10**e;out={b:[...ds,C.find(c=>c.mult===e).id,n===2?"dorado":"marron"],real,ex:Math.abs(real-v)/v<1e-9}}}
+$("invOut").innerHTML=out?svg(out.b)+`<div class="props">${props([["Colores",out.b.map(i=>by(i).name).join(" – ")],["Valor codificado",fmt(out.real)],["Nota",out.ex?"Se representa exacto con estas bandas.":`No cabe exacto en ${n} dígitos; se redondeó.`]])}</div>`:`<div class="warn">Escribe un valor positivo entre 0,1 Ω y 999 GΩ, por ejemplo 470, 4.7k o 1M.</div>`;return out}
+$("invIn").oninput=inv;seg($("invSeg"),[["4","4 bandas"],["5","5 bandas"]],"4",v=>{invN=v;inv()});inv();
+// tabla
+$("tb").innerHTML=C.map(c=>`<tr><td><span class="sw" style="background:${c.hex}"></span>${c.name}</td><td>${c.digit??"—"}</td><td>${c.mult!==null?ml(c.mult):"—"}</td><td>${c.tol!==null?pc(c.tol):"—"}</td><td>${c.tc!==null?c.tc+" ppm/K":"—"}</td></tr>`).join("");
+// ohm
+const U={V:"Voltaje en voltios (V)",I:"Corriente en amperios (A)",R:"Resistencia en ohmios (Ω)",P:"Potencia en vatios (W)"};let pair="VR";
+function ohm(){$("la").textContent=U[pair[0]];$("lb").textContent=U[pair[1]];const x=parseFloat($("ia").value),y=parseFloat($("ib").value);if(!(x>0&&y>0)){$("ohmOut").innerHTML=`<div class="warn">Ingresa dos valores mayores que cero.</div>`;return null}
+let V,I,R,P;switch(pair){case"VI":V=x;I=y;R=V/I;P=V*I;break;case"VR":V=x;R=y;I=V/R;P=V*V/R;break;case"VP":V=x;P=y;I=P/V;R=V*V/P;break;case"IR":I=x;R=y;V=I*R;P=I*I*R;break;case"IP":I=x;P=y;V=P/I;R=P/(I*I);break;case"RP":R=x;P=y;I=Math.sqrt(P/R);V=Math.sqrt(P*R)}
+$("ohmOut").innerHTML=`<div class="props">${props([["Voltaje (V)",si(V,"V")],["Corriente (I)",si(I,"A")],["Resistencia (R)",fmt(R)],["Potencia (P)",si(P,"W")],["Potencia nominal sugerida",si(2*P,"W")+" o más"]])}</div>`;return{V,I,R,P}}
+$("ia").oninput=$("ib").oninput=ohm;seg($("pairSeg"),["VI","VR","VP","IR","IP","RP"].map(p=>[p,p[0]+" y "+p[1]]),"VR",v=>{pair=v;ohm()});ohm();
+// serie/paralelo
+let L=["100","220","1k"];function drawList(){$("list").innerHTML=L.map((s,i)=>`<div class="grid"><label>R${i+1} (ej.: 220, 4.7k)<input data-i="${i}" value="${s}"></label><button class="btn" data-r="${i}"${L.length<=1?" disabled":""}>Quitar</button></div>`).join("");sp()}
+function sp(){const v=L.map(parseVal).filter(x=>isFinite(x)&&x>0),s=v.reduce((a,b)=>a+b,0),p=v.length?1/v.reduce((a,b)=>a+1/b,0):NaN;$("spOut").innerHTML=props([["Resistencias válidas",v.length],["Equivalente en serie",v.length?fmt(s):"—"],["Equivalente en paralelo",v.length?fmt(p):"—"]]);return{s,p}}
+$("list").oninput=e=>{if(e.target.dataset.i!==undefined){L[+e.target.dataset.i]=e.target.value;sp()}};$("list").onclick=e=>{const r=e.target.dataset.r;if(r!==undefined&&L.length>1){L.splice(+r,1);drawList()}};$("add").onclick=()=>{L.push("1k");drawList()};drawList();
+</script></body></html>
